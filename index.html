@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Poids libres</title>
+<meta name="description" content="Poids libres, la chaîne gratuite pour comprendre et utiliser l'IA open source, chez soi, sans abonnement.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Couleurs (thème clair par défaut) ---------- */
+  :root {
+    --fond: #EEF2F7;        /* blanc bleuté, comme une feuille de labo */
+    --encre: #14213D;       /* bleu nuit pour le texte */
+    --discret: #5E6A82;     /* texte secondaire */
+    --cobalt: #2F4BFF;      /* couleur d'action */
+    --surligneur: #FFD43B;  /* jaune surligneur, utilisé avec parcimonie */
+    --trait: #C9D2E3;
+    --surface: #FFFFFF;
+    --matrice: #B7C2D8;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fond: #0F1730; --encre: #E6EBF5; --discret: #9AA6C2; --cobalt: #8C9DFF;
+      --surligneur: #FFD43B; --trait: #26325A; --surface: #16204A; --matrice: #2C3A66;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --fond: #0F1730; --encre: #E6EBF5; --discret: #9AA6C2; --cobalt: #8C9DFF;
+    --surligneur: #FFD43B; --trait: #26325A; --surface: #16204A; --matrice: #2C3A66;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--encre);
+    font: 400 1.125rem/1.65 "Source Serif 4", Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, nav, .bouton, label, input, .meta, .logo {
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 4px; }
+  .enveloppe { max-width: 72rem; margin: 0 auto; padding-inline: clamp(1rem, 4vw, 2.5rem); }
+
+  /* ---------- En-tête ---------- */
+  header.barre {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding-block: 1.25rem; flex-wrap: wrap;
+  }
+  .logo { font-weight: 800; font-size: 1.25rem; text-decoration: none; letter-spacing: -0.02em; }
+  .logo span { display: inline-block; width: .65em; height: .65em; background: var(--cobalt); border-radius: 2px; margin-right: .4em; transform: translateY(-.05em); }
+  nav ul { list-style: none; display: flex; gap: 1.5rem; margin: 0; padding: 0; font-size: 1rem; }
+  nav a { text-decoration: none; color: var(--discret); }
+  nav a:hover { color: var(--encre); }
+
+  /* ---------- Hero : la matrice de poids ---------- */
+  .hero { position: relative; overflow: hidden; padding-block: clamp(4rem, 12vw, 9rem) clamp(3rem, 8vw, 6rem); }
+  .matrice {
+    position: absolute; inset: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr));
+    align-content: start; gap: .35rem .5rem;
+    font: 500 .95rem/1.4 "Bricolage Grotesque", sans-serif;
+    font-variant-numeric: tabular-nums;
+    color: var(--matrice);
+    padding: 1rem; user-select: none; pointer-events: none;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+  }
+  .matrice span.actif { color: var(--cobalt); }
+  .hero-contenu { position: relative; }
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(4rem, 15vw, 11.5rem);
+    font-weight: 800; font-stretch: 75%;
+    line-height: .86; letter-spacing: -0.04em;
+    max-width: 9ch;
+  }
+  .hero h1 em {
+    font-style: normal; display: block;
+    background: var(--surligneur); color: #14213D;
+    width: fit-content; padding: 0 .08em; margin-top: .06em;
+  }
+  .hero p.intro {
+    max-width: 34rem; margin: 2rem 0 2.25rem;
+    font-size: clamp(1.15rem, 2vw, 1.35rem);
+    background: var(--fond); /* garde le texte lisible au-dessus des nombres */
+    box-shadow: 0 0 0 .5rem var(--fond);
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .bouton {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .85rem 1.35rem; border-radius: 999px;
+    font-weight: 600; font-size: 1rem; text-decoration: none;
+    border: 2px solid var(--encre); background: var(--fond); color: var(--encre);
+    cursor: pointer;
+  }
+  .bouton.principal { background: var(--cobalt); border-color: var(--cobalt); color: #fff; }
+  .bouton:hover { transform: translateY(-1px); }
+
+  /* ---------- Sections ---------- */
+  section.bloc { padding-block: clamp(3.5rem, 8vw, 6rem); border-top: 1px solid var(--trait); }
+  h2 { font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 800; font-stretch: 85%; letter-spacing: -0.03em; line-height: 1.02; margin: 0 0 .75rem; }
+  .chapo { color: var(--discret); max-width: 38rem; margin: 0 0 2.5rem; }
+
+  /* Dernières vidéos : une vidéo à la une + une liste */
+  .videos { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); }
+  .une a, .liste a { text-decoration: none; display: block; }
+  .vignette {
+    position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 10px; overflow: hidden;
+    background: var(--encre); color: var(--fond);
+    display: flex; align-items: flex-end; padding: 1rem;
+  }
+  .vignette .num {
+    position: absolute; inset: 0; padding: .75rem;
+    font: 500 .8rem/1.5 "Bricolage Grotesque", sans-serif; font-variant-numeric: tabular-nums;
+    color: rgba(238, 242, 247, .16); overflow: hidden; word-break: break-all;
+  }
+  .vignette .grand { position: relative; font: 800 clamp(1.6rem, 3.5vw, 2.6rem)/1 "Bricolage Grotesque", sans-serif; font-stretch: 75%; letter-spacing: -0.03em; max-width: 12ch; }
+  .vignette .duree { position: absolute; top: .75rem; right: .75rem; background: var(--surligneur); color: #14213D; font: 600 .8rem/1 "Bricolage Grotesque", sans-serif; padding: .35rem .5rem; border-radius: 4px; }
+  .une h3 { font-size: 1.5rem; line-height: 1.2; margin: 1rem 0 .4rem; letter-spacing: -0.01em; }
+  .une a:hover h3, .liste a:hover h3 { color: var(--cobalt); }
+  .meta { font-size: .9rem; color: var(--discret); }
+  .liste { list-style: none; margin: 0; padding: 0; }
+  .liste li { border-bottom: 1px solid var(--trait); }
+  .liste li:first-child { border-top: 1px solid var(--trait); }
+  .liste a { padding: 1.1rem 0; }
+  .liste h3 { font-size: 1.15rem; line-height: 1.3; margin: 0 0 .3rem; font-weight: 600; }
+
+  /* Formats */
+  .formats { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(1.5rem, 4vw, 3rem); }
+  .format h3 { font-size: 1.4rem; margin: 0 0 .5rem; letter-spacing: -0.01em; }
+  .format p { margin: 0; color: var(--discret); }
+  .format .pictogramme { width: 2.75rem; height: 2.75rem; margin-bottom: 1rem; color: var(--cobalt); }
+
+  /* Pourquoi gratuit */
+  .manifeste { background: var(--cobalt); color: #fff; border-top: none; }
+  .manifeste blockquote {
+    margin: 0; max-width: 48rem;
+    font: 400 clamp(1.6rem, 3.6vw, 2.5rem)/1.3 "Source Serif 4", Georgia, serif;
+  }
+  .manifeste p { max-width: 38rem; margin: 1.75rem 0 0; color: rgba(255,255,255,.82); }
+
+  /* Newsletter */
+  .newsletter { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: end; }
+  form { display: flex; flex-direction: column; gap: .6rem; }
+  label { font-weight: 600; font-size: 1rem; }
+  .champ { display: flex; gap: .5rem; flex-wrap: wrap; }
+  input[type="email"] {
+    flex: 1 1 14rem; min-width: 0;
+    padding: .85rem 1.1rem; border-radius: 999px; font-size: 1rem;
+    border: 2px solid var(--trait); background: var(--surface); color: var(--encre);
+  }
+  input[type="email"]:focus { border-color: var(--cobalt); outline: none; }
+  .message { min-height: 1.5em; font-size: 1rem; margin: 0; }
+  .message.erreur { color: #C62E2E; }
+  .message.ok { color: var(--cobalt); font-weight: 600; }
+
+  /* Pied de page */
+  footer { border-top: 1px solid var(--trait); padding-block: 2.5rem; font-size: 1rem; color: var(--discret); }
+  footer .enveloppe { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+  footer ul { list-style: none; display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 0; padding: 0; font-family: "Bricolage Grotesque", sans-serif; }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 760px) {
+    nav ul { gap: 1rem; font-size: .95rem; }
+    .videos, .newsletter, .formats { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .bouton:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="enveloppe">
+  <header class="barre">
+    <a class="logo" href="#"><span aria-hidden="true"></span>Poids libres</a>
+    <nav aria-label="Navigation principale">
+      <ul>
+        <li><a href="#videos">Vidéos</a></li>
+        <li><a href="#formats">Formats</a></li>
+        <li><a href="#newsletter">Newsletter</a></li>
+      </ul>
+    </nav>
+  </header>
+</div>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="matrice" id="matrice" aria-hidden="true"></div>
+    <div class="enveloppe hero-contenu">
+      <h1>Poids <em>libres</em></h1>
+      <p class="intro">L'IA qu'on peut télécharger, comprendre et faire tourner chez soi. Une chaîne gratuite pour utiliser les modèles open source, sans abonnement et sans envoyer ses données ailleurs.</p>
+      <div class="actions">
+        <a class="bouton principal" href="#videos">Regarder la dernière vidéo</a>
+        <a class="bouton" href="#newsletter">Recevoir la newsletter</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDÉOS -->
+  <section class="bloc" id="videos">
+    <div class="enveloppe">
+      <h2>Dernières vidéos</h2>
+      <p class="chapo">Chaque vidéo part d'un besoin concret et se termine par quelque chose qui fonctionne sur ton ordinateur.</p>
+      <div class="videos">
+        <article class="une">
+          <a href="#">
+            <div class="vignette">
+              <div class="num" data-remplir></div>
+              <span class="duree">18 min</span>
+              <span class="grand">Une IA sur ton PC portable</span>
+            </div>
+            <h3>Faire tourner un modèle de langage sans carte graphique</h3>
+            <p class="meta">Tutoriel · Débutant · il y a 3 jours</p>
+          </a>
+        </article>
+        <ul class="liste">
+          <li><a href="#"><h3>Open source ou « open weights » : quelle différence, concrètement ?</h3><p class="meta">Décryptage · 12 min</p></a></li>
+          <li><a href="#"><h3>Transcrire ses réunions en local avec Whisper</h3><p class="meta">Tutoriel · 15 min</p></a></li>
+          <li><a href="#"><h3>Générer des images gratuitement, sans compte ni crédits</h3><p class="meta">Tutoriel · 21 min</p></a></li>
+          <li><a href="#"><h3>Cinq modèles gratuits testés sur la même question</h3><p class="meta">Comparatif · 24 min</p></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMATS -->
+  <section class="bloc" id="formats">
+    <div class="enveloppe">
+      <h2>Ce que tu trouveras ici</h2>
+      <p class="chapo">Trois façons d'aborder l'IA libre, de la première installation jusqu'au choix du bon outil.</p>
+      <div class="formats">
+        <div class="format">
+          <svg class="pictogramme" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="4" y="8" width="36" height="24" rx="3"/><path d="M14 38h16M22 32v6M12 16l5 4-5 4M21 24h9"/></svg>
+          <h3>Tutoriels</h3>
+          <p>On installe, on configure, on teste ensemble, à l'écran et sans sauter d'étape.</p>
+        </div>
+        <div class="format">
+          <svg class="pictogramme" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="19" cy="19" r="12"/><path d="M28 28l11 11M14 19h10M19 14v10"/></svg>
+          <h3>Décryptages</h3>
+          <p>Les annonces et le jargon traduits en français clair : ce que ça change pour toi, et ce qui relève du marketing.</p>
+        </div>
+        <div class="format">
+          <svg class="pictogramme" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 38V22M18 38V10M28 38V18M38 38V6M4 38h38"/></svg>
+          <h3>Comparatifs</h3>
+          <p>Les mêmes tâches confiées à plusieurs modèles gratuits pour voir lequel s'en sort le mieux, et sur quelle machine.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- POURQUOI GRATUIT -->
+  <section class="bloc manifeste">
+    <div class="enveloppe">
+      <blockquote>Si un modèle peut tourner sur ta machine, tu n'as pas besoin de payer quelqu'un pour y avoir accès.</blockquote>
+      <p>C'est pour ça que tout est gratuit ici : les vidéos, les fichiers de configuration et les modèles présentés. Les ressources sont partagées sous licence libre, tu peux les réutiliser et les améliorer.</p>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="bloc" id="newsletter">
+    <div class="enveloppe newsletter">
+      <div>
+        <h2>Un e-mail par semaine</h2>
+        <p class="chapo" style="margin-bottom:0">Les nouvelles vidéos et les modèles gratuits sortis dans la semaine, testés avant d'être recommandés. Désinscription en un clic.</p>
+      </div>
+      <!-- À brancher sur un outil d'e-mailing (Brevo, Substack, Buttondown…) -->
+      <form id="formulaire" novalidate>
+        <label for="email">Ton adresse e-mail</label>
+        <div class="champ">
+          <input type="email" id="email" name="email" placeholder="prenom@exemple.fr" autocomplete="email" required>
+          <button class="bouton principal" type="submit">S'inscrire</button>
+        </div>
+        <p class="message" id="message" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="enveloppe">
+    <p style="margin:0">Poids libres · contenus sous licence CC BY-SA 4.0</p>
+    <ul>
+      <li><a href="#">YouTube</a></li>
+      <li><a href="#">PeerTube</a></li>
+      <li><a href="#">GitHub</a></li>
+      <li><a href="#">Mastodon</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  // Génère un faux "poids" de modèle, par exemple -0.0421
+  function poids() {
+    const v = (Math.random() * 2 - 1) * (Math.random() < 0.15 ? 1.5 : 0.09);
+    return (v >= 0 ? " " : "") + v.toFixed(4);
+  }
+
+  // Remplit la grille de nombres derrière le titre
+  const matrice = document.getElementById("matrice");
+  const cases = [];
+  for (let i = 0; i < 220; i++) {
+    const s = document.createElement("span");
+    s.textContent = poids();
+    matrice.appendChild(s);
+    cases.push(s);
+  }
+
+  // Remplit le fond des vignettes vidéo
+  document.querySelectorAll("[data-remplir]").forEach(el => {
+    el.textContent = Array.from({ length: 160 }, poids).join(" ");
+  });
+
+  // Animation : quelques nombres changent et s'allument en bleu, comme un modèle qui "réfléchit".
+  // Désactivée si l'utilisateur préfère réduire les animations.
+  const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduit) {
+    setInterval(() => {
+      for (let k = 0; k < 6; k++) {
+        const c = cases[Math.floor(Math.random() * cases.length)];
+        c.textContent = poids();
+        c.classList.add("actif");
+        setTimeout(() => c.classList.remove("actif"), 900);
+      }
+    }, 180);
+  }
+
+  // Formulaire newsletter : vérifie l'adresse (l'envoi réel reste à brancher)
+  const form = document.getElementById("formulaire");
+  const msg = document.getElementById("message");
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const email = form.email.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      msg.className = "message erreur";
+      msg.textContent = "Cette adresse ne semble pas valide. Vérifie qu'elle contient bien un @ et un domaine.";
+      form.email.focus();
+      return;
+    }
+    msg.className = "message ok";
+    msg.textContent = "C'est noté ! Le premier e-mail arrive lundi.";
+    form.reset();
+  });
+</script>
+</body>
+</html>
